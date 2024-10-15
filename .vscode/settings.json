@@ -1,0 +1,13 @@
+{
+    "python.analysis.extraPaths": [
+        "./src"
+    ],
+    "python.envFile": "${workspaceFolder}/.env",  // Arquivo de ambiente para variáveis
+    "python.testing.unittestArgs": [
+        "-v",  // Modo detalhado (verbose)
+        "-s", "./tests",  // Diretório onde os testes estão localizados
+        "-p", "*_test.py"  // Padrão de arquivos de teste
+    ],
+    "python.testing.pytestEnabled": false,  // Desativa pytest
+    "python.testing.unittestEnabled": true  // Ativa unittest
+}
