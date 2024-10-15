@@ -1,13 +1,26 @@
 version: '3'
+
 services:
   mongodb:
     image: mongo
     container_name: mongodb
     ports:
-      - "27017:27017"
+      - "27017:27017"  # Porta do MongoDB
+
   rabbitmq:
     image: rabbitmq:management
     container_name: rabbitmq
     ports:
       - "5672:5672"  # Porta padrão do RabbitMQ
       - "15672:15672"  # Interface de gerenciamento do RabbitMQ
+
+  web:
+    build: .
+    container_name: web
+    environment:
+      - PYTHONPATH=./src  # Configuração do PYTHONPATH para o serviço web
+    ports:
+      - "8000:8000"  # Porta para a aplicação FastAPI ou outro serviço web
+    depends_on:
+      - mongodb
+      - rabbitmq

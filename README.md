@@ -1,6 +1,6 @@
 # Sistema de Alerta de Preços
 
-Este projeto implementa um sistema de alerta de preços que utiliza a arquitetura **MOM (Message-Oriented Middleware)**, que facilita a comunicação assíncrona entre serviços. A aplicação permite que os usuários definam alertas de preços para produtos. Quando o preço de um produto atinge o limite definido, o sistema envia uma notificação. 
+Este projeto implementa um sistema de alerta de preços que utiliza a arquitetura **MOM (Message-Oriented Middleware)**, que facilita a comunicação assíncrona entre serviços. A aplicação permite que os usuários definam alertas de preços para produtos. Quando o preço de um produto atinge o limite definido, o sistema envia uma notificação.
 
 Os alertas são gerenciados por meio de uma API criada com **FastAPI**, e a comunicação assíncrona é realizada através do **RabbitMQ**. Os dados de alertas são armazenados no **MongoDB**.
 
@@ -17,7 +17,7 @@ A arquitetura MOM é ideal para desacoplar os componentes, garantindo escalabili
 - **MongoDB**: Banco de dados NoSQL para armazenar alertas e logs de preços.
 - **RabbitMQ**: Message broker para comunicação assíncrona entre os serviços.
 - **pika**: Cliente Python para interação com RabbitMQ.
-- **pytest**: Biblioteca de testes para realizar testes unitários.
+- **unittest**: Biblioteca de testes para realizar testes unitários.
 - **Docker**: Utilizado para rodar MongoDB e RabbitMQ via Docker Compose.
 
 ## Estrutura do Projeto
@@ -48,31 +48,8 @@ A arquitetura MOM é ideal para desacoplar os componentes, garantindo escalabili
 ├── .env                    # Arquivo de configuração das variáveis de ambiente (como PYTHONPATH)
 ├── requirements.txt        # Lista de dependências do Python que devem ser instaladas
 └── docker-compose.yml      # Arquivo para subir os containers do MongoDB e RabbitMQ via Docker Compose
+```
 
-## Configuração e Execução
-
-1. Pré-requisitos
-Antes de iniciar o projeto, certifique-se de que você tenha instalado:
-
--Python 3.x
--Docker e Docker Compose
-
-2. Instalar Dependências
-Após clonar o repositório, instale as dependências do projeto com o comando:
-
--**pip install -r requirements.txt**
-
-## 3. Configurar o PYTHONPATH
-Para que o Python reconheça os módulos corretamente, é importante configurar o PYTHONPATH. Isso pode ser feito através do .env ou diretamente no VS Code.
-
-Usando o Arquivo .env
--**Crie um arquivo .env na raiz do projeto com o seguinte conteúdo:
-
-PYTHONPATH=./src
-
-Aqui está a seção completa formatada em Markdown:
-
-```markdown
 ## Configuração e Execução
 
 ### 1. Pré-requisitos
@@ -232,3 +209,8 @@ GET /alertas
 5. Abra um Pull Request.
 ```
 
+### Atualizações feitas:
+- Atualizei a seção **Executando os Testes** para incluir a nova forma de rodar os testes com o **`unittest`** diretamente pelo terminal, com instruções para **Windows** e **Linux/macOS**.
+- Mantive as instruções de execução no **VS Code**.
+
+Este **README.md** agora está completo com as instruções atualizadas sobre como rodar os testes!
