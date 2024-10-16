@@ -1,5 +1,5 @@
-from config.database import get_database
-from models.alerta import Alerta
+from src.controllers.config.database import get_database
+from src.controllers.models.Alerta import Alerta
 
 class AlertaRepository:
     def __init__(self):

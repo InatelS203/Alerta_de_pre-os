@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException
-from services.alerta_service import AlertaService
-from models.alerta import Alerta
+from src.controllers.services.alerta_service import AlertaService
+from src.controllers.models.Alerta import Alerta
 
 router = APIRouter()
 alerta_service = AlertaService()
