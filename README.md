@@ -50,6 +50,70 @@ A arquitetura MOM é ideal para desacoplar os componentes, garantindo escalabili
 └── docker-compose.yml      # Arquivo para subir os containers do MongoDB e RabbitMQ via Docker Compose
 ```
 
+## Instalação do RabbitMQ
+
+### 1. Instalar RabbitMQ
+
+Para instalar o **RabbitMQ** no seu sistema, siga os passos abaixo:
+
+#### **Windows**:
+1. Faça o download do **RabbitMQ Installer** no site oficial:  
+   [https://www.rabbitmq.com/install-windows.html](https://www.rabbitmq.com/install-windows.html)
+2. Siga as instruções de instalação no site, que incluem também a instalação do **Erlang** (prérequisito para o RabbitMQ).
+
+#### **Linux**:
+1. No terminal, instale o RabbitMQ com o seguinte comando:
+   
+   ```bash
+   sudo apt-get install rabbitmq-server
+   ```
+
+2. Após a instalação, inicie o RabbitMQ:
+
+   ```bash
+   sudo service rabbitmq-server start
+   ```
+
+### 2. Habilitar o RabbitMQ Management Plugin
+
+Após instalar o **RabbitMQ**, é necessário habilitar o **RabbitMQ Management Plugin** para acessar a interface de gerenciamento web.
+
+1. **Habilitar o plugin de gerenciamento**:
+
+   No terminal, execute o seguinte comando para habilitar o plugin:
+
+   ```bash
+   rabbitmq-plugins enable rabbitmq_management
+   ```
+
+2. **Reiniciar o RabbitMQ**:
+   
+   As mudanças só terão efeito após reiniciar o RabbitMQ. Execute os comandos abaixo para reiniciar o RabbitMQ:
+
+   ```bash
+   rabbitmqctl stop
+   rabbitmq-server
+   ```
+
+### 3. Acessar o Gerenciador Web do RabbitMQ
+
+Para verificar e gerenciar as filas e exchanges do RabbitMQ, você pode acessar o painel de gerenciamento web do RabbitMQ.
+
+1. Abra um navegador web e digite o seguinte URL:
+
+   ```
+   http://localhost:15672
+   ```
+
+2. Ao acessar o painel de gerenciamento, você precisará fornecer as credenciais padrão de acesso:
+
+   - **Usuário**: `guest`
+   - **Senha**: `guest`
+
+Agora você pode visualizar e gerenciar as filas, exchanges e verificar o status do RabbitMQ diretamente através da interface web.
+
+---
+
 ## Configuração e Execução
 
 ### 1. Pré-requisitos
@@ -58,6 +122,7 @@ Antes de iniciar o projeto, certifique-se de que você tenha instalado:
 
 - **Python 3.x**
 - **Docker** e **Docker Compose**
+- **RabbitMQ** (conforme instruções acima)
 
 ### 2. Instalar Dependências
 
@@ -192,7 +257,9 @@ GET /alertas
     "usuario_id": "123",
     "produto": "Smartphone XYZ",
     "preco_limite": 1000.0,
-    "data_criacao": "2024-09-02",
+    "data_cri
+
+acao": "2024-09-02",
     "status": "ativo"
   }
 ]
@@ -207,10 +274,7 @@ GET /alertas
 3. Commit suas mudanças (`git commit -m 'Adiciona nova feature'`).
 4. Faça push para a branch (`git push origin feature/nome-da-feature`).
 5. Abra um Pull Request.
-```
 
-### Atualizações feitas:
-- Atualizei a seção **Executando os Testes** para incluir a nova forma de rodar os testes com o **`unittest`** diretamente pelo terminal, com instruções para **Windows** e **Linux/macOS**.
-- Mantive as instruções de execução no **VS Code**.
+---
 
-Este **README.md** agora está completo com as instruções atualizadas sobre como rodar os testes!
+Agora o **README.md** contém as instruções completas para instalar o **RabbitMQ**, habilitar o plugin de gerenciamento, e acessar o painel via navegador.
