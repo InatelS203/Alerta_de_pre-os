@@ -1,19 +1,12 @@
-from repositories.alerta_repository import AlertaRepository
-from integrations.rabbitmq_client import RabbitMQClient
-from models.alerta import Alerta
+#!/usr/bin/env python
+import pika
 
-class AlertaService:
-    def __init__(self):
-        self.alerta_repository = AlertaRepository()
-        self.rabbitmq_client = RabbitMQClient()
+connection = pika.BlockingConnection(
+    pika.ConnectionParameters(host='localhost'))
+channel = connection.channel()
 
-    def criar_alerta(self, alerta: Alerta):
-        # Salva o alerta no MongoDB
-        self.alerta_repository.salvar_alerta(alerta)
+channel.queue_declare(queue='hello')
 
-        # Envia o alerta para RabbitMQ
-        self.rabbitmq_client.publicar_alerta(str(alerta))
-
-    def listar_alertas(self):
-        # Retorna todos os alertas do MongoDB
-        return self.alerta_repository.buscar_todos_alertas()
+channel.basic_publish(exchange='', routing_key='hello', body='Hello World!')
+print(" [x] Sent 'Hello World!'")
+connection.close()

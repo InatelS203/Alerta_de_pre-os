@@ -114,6 +114,42 @@ Agora você pode visualizar e gerenciar as filas, exchanges e verificar o status
 
 ---
 
+## Extensão RabbitMQ Trace para VS Code
+
+### Como Configurar a Extensão RabbitTrace
+
+A extensão **RabbitMQ Trace** permite que você gerencie e monitore suas filas e exchanges diretamente no **VS Code**.
+
+#### 1. Instalar a Extensão RabbitTrace
+
+1. Abra o **VS Code**.
+2. No painel lateral esquerdo, clique no ícone de **Extensões** (ou use `Ctrl+Shift+X`).
+3. No campo de busca, digite **"RabbitMQ Trace"** ou **"RabbitTrace"**.
+4. Instale a extensão **RabbitMQ Trace**.
+
+#### 2. Configurar a Conexão no RabbitTrace
+
+Após instalar a extensão, configure a conexão com o seu RabbitMQ.
+
+1. **Abrir RabbitTrace**:
+   - No **VS Code**, vá para a barra lateral e clique no ícone da extensão **RabbitTrace** (ícone de um coelho).
+
+2. **Adicionar uma Nova Conexão**:
+   - Clique no botão **"Add New Connection"**.
+
+3. **Preencher os Detalhes da Conexão**:
+   - **Connection Name**: Dê um nome para sua conexão, como `RabbitMQ Local`.
+   - **Management API URL**: `http://localhost:15672`
+   - **Management API Username**: `guest`
+   - **Management API Password**: `guest`
+   
+4. **Salvar a Conexão**:
+   - Clique em **Save** para salvar a conexão.
+
+Agora, você pode gerenciar e monitorar suas filas e exchanges diretamente do VS Code.
+
+---
+
 ## Configuração e Execução
 
 ### 1. Pré-requisitos
@@ -188,7 +224,9 @@ A API estará disponível em `http://localhost:8000`.
 
 ## Executando os Testes
 
-### 1. Rodar os Testes no VS Code
+### 1. Rodar os Testes no
+
+ VS Code
 
 Se estiver utilizando o **VS Code**, você pode rodar os testes diretamente no painel de testes:
 
@@ -257,9 +295,7 @@ GET /alertas
     "usuario_id": "123",
     "produto": "Smartphone XYZ",
     "preco_limite": 1000.0,
-    "data_cri
-
-acao": "2024-09-02",
+    "data_criacao": "2024-09-02",
     "status": "ativo"
   }
 ]
@@ -274,7 +310,3 @@ acao": "2024-09-02",
 3. Commit suas mudanças (`git commit -m 'Adiciona nova feature'`).
 4. Faça push para a branch (`git push origin feature/nome-da-feature`).
 5. Abra um Pull Request.
-
----
-
-Agora o **README.md** contém as instruções completas para instalar o **RabbitMQ**, habilitar o plugin de gerenciamento, e acessar o painel via navegador.

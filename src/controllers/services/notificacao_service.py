@@ -1,13 +1,26 @@
-from integrations.rabbitmq_client import RabbitMQClient
+#!/usr/bin/env python
+import pika, sys, os
 
-class NotificacaoService:
-    def __init__(self):
-        self.rabbitmq_client = RabbitMQClient()
+def main():
+    connection = pika.BlockingConnection(pika.ConnectionParameters(host='localhost'))
+    channel = connection.channel()
 
-    def enviar_notificacao(self, alerta):
-        # Aqui você pode implementar envio de notificações (e.g., SMS, email)
-        print(f"Notificação enviada para o alerta: {alerta}")
+    channel.queue_declare(queue='hello')
 
-    def iniciar_consumidor(self):
-        # Inicia o consumo de alertas no RabbitMQ
-        self.rabbitmq_client.consumir_alertas(self.enviar_notificacao)
+    def callback(ch, method, properties, body):
+        print(f" [x] Received {body}")
+
+    channel.basic_consume(queue='hello', on_message_callback=callback, auto_ack=True)
+
+    print(' [*] Waiting for messages. To exit press CTRL+C')
+    channel.start_consuming()
+
+if __name__ == '__main__':
+    try:
+        main()
+    except KeyboardInterrupt:
+        print('Interrupted')
+        try:
+            sys.exit(0)
+        except SystemExit:
+            os._exit(0)
