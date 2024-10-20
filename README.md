@@ -1,6 +1,6 @@
 # Sistema de Alerta de Preços
 
-Este projeto implementa um sistema de alerta de preços que utiliza a arquitetura **MOM (Message-Oriented Middleware)**, que facilita a comunicação assíncrona entre serviços. A aplicação permite que os usuários definam alertas de preços para produtos. Quando o preço de um produto atinge o limite definido, o sistema envia uma notificação.
+Este projeto implementa um sistema de alerta de preços que utiliza a arquitetura **MOM (Message-Oriented Middleware)**, facilitando a comunicação assíncrona entre serviços. A aplicação permite que os usuários definam alertas de preços para produtos. Quando o preço de um produto atinge o limite definido, o sistema envia uma notificação.
 
 Os alertas são gerenciados por meio de uma API criada com **FastAPI**, e a comunicação assíncrona é realizada através do **RabbitMQ**. Os dados de alertas são armazenados no **MongoDB**.
 
@@ -29,7 +29,7 @@ A arquitetura MOM é ideal para desacoplar os componentes, garantindo escalabili
 │   │   └── alerta_controller.py
 │   ├── /services           # Lógica de negócios, comunicação com repositórios e RabbitMQ
 │   │   ├── alerta_service.py
-│   │   └── notificacao_service.py
+│   │   └── notificacao_service.py  # Envio de notificações via email e processamento de mensagens RabbitMQ
 │   ├── /repositories       # Camada de persistência, interação com o banco de dados MongoDB
 │   │   └── alerta_repository.py
 │   ├── /integrations       # Integração com serviços externos, como RabbitMQ
@@ -114,119 +114,33 @@ Agora você pode visualizar e gerenciar as filas, exchanges e verificar o status
 
 ---
 
-## Extensão RabbitMQ Trace para VS Code
+## Rodar os Serviços
 
-### Como Configurar a Extensão RabbitTrace
+### 1. Executar o Serviço de Alerta
 
-A extensão **RabbitMQ Trace** permite que você gerencie e monitore suas filas e exchanges diretamente no **VS Code**.
-
-#### 1. Instalar a Extensão RabbitTrace
-
-1. Abra o **VS Code**.
-2. No painel lateral esquerdo, clique no ícone de **Extensões** (ou use `Ctrl+Shift+X`).
-3. No campo de busca, digite **"RabbitMQ Trace"** ou **"RabbitTrace"**.
-4. Instale a extensão **RabbitMQ Trace**.
-
-#### 2. Configurar a Conexão no RabbitTrace
-
-Após instalar a extensão, configure a conexão com o seu RabbitMQ.
-
-1. **Abrir RabbitTrace**:
-   - No **VS Code**, vá para a barra lateral e clique no ícone da extensão **RabbitTrace** (ícone de um coelho).
-
-2. **Adicionar uma Nova Conexão**:
-   - Clique no botão **"Add New Connection"**.
-
-3. **Preencher os Detalhes da Conexão**:
-   - **Connection Name**: Dê um nome para sua conexão, como `RabbitMQ Local`.
-   - **Management API URL**: `http://localhost:15672`
-   - **Management API Username**: `guest`
-   - **Management API Password**: `guest`
-   
-4. **Salvar a Conexão**:
-   - Clique em **Save** para salvar a conexão.
-
-Agora, você pode gerenciar e monitorar suas filas e exchanges diretamente do VS Code.
-
----
-
-## Configuração e Execução
-
-### 1. Pré-requisitos
-
-Antes de iniciar o projeto, certifique-se de que você tenha instalado:
-
-- **Python 3.x**
-- **Docker** e **Docker Compose**
-- **RabbitMQ** (conforme instruções acima)
-
-### 2. Instalar Dependências
-
-Após clonar o repositório, instale as dependências do projeto com o comando:
+Para iniciar o serviço que cria alertas e envia mensagens para o **RabbitMQ**, execute o seguinte comando:
 
 ```bash
-pip install -r requirements.txt
+python src/controllers/services/alerta_service.py
 ```
 
-### 3. Configurar o PYTHONPATH
+Este serviço recebe solicitações de criação de alertas e publica mensagens na fila `alertas` do **RabbitMQ**.
 
-Para que o Python reconheça os módulos corretamente, é importante configurar o **PYTHONPATH**. Isso pode ser feito através do **`.env`** ou diretamente no **VS Code**.
+### 2. Executar o Serviço de Notificações
 
-#### Usando o Arquivo `.env`
-
-Crie um arquivo **`.env`** na raiz do projeto com o seguinte conteúdo:
+Para iniciar o serviço que consome as mensagens da fila **RabbitMQ** e envia notificações por email, execute:
 
 ```bash
-PYTHONPATH=./src
+python src/controllers/services/notificacao_service.py
 ```
 
-#### Configurando o PYTHONPATH no VS Code
-
-Se estiver usando o **VS Code**, você também pode adicionar o seguinte ao arquivo **`settings.json`**:
-
-```json
-{
-    "python.analysis.extraPaths": [
-        "./src"
-    ],
-    "python.envFile": "${workspaceFolder}/.env",
-    "python.testing.unittestArgs": [
-        "-v",  // Detalhamento dos testes
-        "-s", "./tests",  // Diretório de testes
-        "-p", "*_test.py"  // Padrão de nome dos arquivos de teste
-    ],
-    "python.testing.pytestEnabled": false,  // Desabilita pytest (usando unittest)
-    "python.testing.unittestEnabled": true  // Habilita unittest
-}
-```
-
-### 4. Subir MongoDB e RabbitMQ com Docker
-
-Para rodar o MongoDB e RabbitMQ usando Docker Compose, execute o seguinte comando na raiz do projeto:
-
-```bash
-docker-compose up -d
-```
-
-Isso irá subir os containers com o MongoDB e RabbitMQ.
-
-### 5. Rodar a API FastAPI
-
-Agora você pode iniciar a API FastAPI com o seguinte comando:
-
-```bash
-python src/routes/alerta_routes.py
-```
-
-A API estará disponível em `http://localhost:8000`.
+Este serviço consome as mensagens de alerta da fila `alertas` e envia notificações (como emails) para os usuários.
 
 ---
 
 ## Executando os Testes
 
-### 1. Rodar os Testes no
-
- VS Code
+### 1. Rodar os Testes no VS Code
 
 Se estiver utilizando o **VS Code**, você pode rodar os testes diretamente no painel de testes:
 
@@ -310,3 +224,4 @@ GET /alertas
 3. Commit suas mudanças (`git commit -m 'Adiciona nova feature'`).
 4. Faça push para a branch (`git push origin feature/nome-da-feature`).
 5. Abra um Pull Request.
+
