@@ -25,30 +25,31 @@ A arquitetura MOM é ideal para desacoplar os componentes, garantindo escalabili
 ```bash
 /project-root
 ├── /src
-│   ├── /controllers        
-│   │   └── alerta_controller.py
+│   ├── /controllers        # Controladores da API, onde as requisições são recebidas e processadas
+│   │   └── alerta_controller.py  # Controlador para gerenciar as operações relacionadas aos alertas
 │   ├── /services           # Lógica de negócios, comunicação com repositórios e RabbitMQ
-│   │   ├── alerta_service.py
-│   │   ├── notificacao_service.py  # Serviço de notificação de alerta
-│   │   └── precos_service.py  # Serviço de atualização de preços
-│   ├── /repositories       
-│   │   └── alerta_repository.py
-│   ├── /integrations       
-│   │   └── rabbitmq_client.py
-│   ├── /models             
-│   │   └── alerta.py
-│   ├── /config             
-│   │   └── database.py
-│   └── /routes             
-│       └── alerta_routes.py
-├── /tests                  
-│   ├── /unit               
-│   │   ├── test_alerta_repository.py
-│   │   ├── test_alerta_service.py
-│   │   └── test_rabbitmq_client.py
-├── .env                    
-├── requirements.txt        
-└── docker-compose.yml      
+│   │   ├── alerta_service.py  # Serviço responsável por criar alertas e enviar mensagens para o RabbitMQ
+│   │   ├── notificacao_service.py  # Serviço responsável por receber mensagens do RabbitMQ e enviar notificações (via email)
+│   │   └── precos_service.py  # Serviço para atualizar periodicamente os preços dos itens no MongoDB
+│   ├── /repositories       # Camada de persistência, responsável por interagir com o banco de dados MongoDB
+│   │   └── alerta_repository.py  # Repositório para gerenciar operações CRUD (Create, Read, Update, Delete) de alertas
+│   ├── /integrations       # Integração com serviços externos, como RabbitMQ
+│   │   └── rabbitmq_client.py  # Cliente para comunicação com o RabbitMQ
+│   ├── /models             # Definições dos modelos de dados usando Pydantic
+│   │   └── alerta.py  # Modelo de dados de um alerta, utilizado para validação e serialização
+│   ├── /config             # Configurações do banco de dados e outras variáveis de ambiente
+│   │   └── database.py  # Configuração de conexão com o MongoDB
+│   └── /routes             # Definições de rotas da API, usadas para mapear os endpoints
+│       └── alerta_routes.py  # Rotas relacionadas aos alertas, como criar, listar, e deletar alertas
+├── /tests                  # Testes unitários para as várias partes do sistema
+│   ├── /unit               # Testes unitários
+│   │   ├── test_alerta_repository.py  # Testes para validar as operações do repositório de alertas
+│   │   ├── test_alerta_service.py  # Testes para validar a lógica do serviço de alertas
+│   │   └── test_rabbitmq_client.py  # Testes para validar a comunicação com o RabbitMQ
+├── .env                    # Arquivo de configuração das variáveis de ambiente (como PYTHONPATH e conexões de banco)
+├── requirements.txt        # Lista de dependências do Python que devem ser instaladas
+└── docker-compose.yml      # Arquivo para subir os containers do MongoDB e RabbitMQ via Docker Compose
+    
 ```
 
 ## Instalação do RabbitMQ
