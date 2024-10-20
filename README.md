@@ -2,7 +2,7 @@
 
 Este projeto implementa um sistema de alerta de preços que utiliza a arquitetura **MOM (Message-Oriented Middleware)**, facilitando a comunicação assíncrona entre serviços. A aplicação permite que os usuários definam alertas de preços para produtos. Quando o preço de um produto atinge o limite definido, o sistema envia uma notificação.
 
-Os alertas são gerenciados por meio de uma API criada com **FastAPI**, e a comunicação assíncrona é realizada através do **RabbitMQ**. Os dados de alertas são armazenados no **MongoDB**.
+Os alertas são gerenciados por meio de uma API criada com **FastAPI**, e a comunicação assíncrona é realizada através do **RabbitMQ**. Os dados de alertas são armazenados no **MongoDB** e os preços dos produtos são atualizados periodicamente.
 
 ## Arquitetura MOM (Message-Oriented Middleware)
 
@@ -25,29 +25,30 @@ A arquitetura MOM é ideal para desacoplar os componentes, garantindo escalabili
 ```bash
 /project-root
 ├── /src
-│   ├── /controllers        # Controladores da API, onde as requisições são recebidas e processadas
+│   ├── /controllers        
 │   │   └── alerta_controller.py
 │   ├── /services           # Lógica de negócios, comunicação com repositórios e RabbitMQ
 │   │   ├── alerta_service.py
-│   │   └── notificacao_service.py  # Envio de notificações via email e processamento de mensagens RabbitMQ
-│   ├── /repositories       # Camada de persistência, interação com o banco de dados MongoDB
+│   │   ├── notificacao_service.py  # Serviço de notificação de alerta
+│   │   └── precos_service.py  # Serviço de atualização de preços
+│   ├── /repositories       
 │   │   └── alerta_repository.py
-│   ├── /integrations       # Integração com serviços externos, como RabbitMQ
+│   ├── /integrations       
 │   │   └── rabbitmq_client.py
-│   ├── /models             # Definições dos modelos de dados usando Pydantic
+│   ├── /models             
 │   │   └── alerta.py
-│   ├── /config             # Configurações do banco de dados e outras variáveis
+│   ├── /config             
 │   │   └── database.py
-│   └── /routes             # Definições de rotas da API
+│   └── /routes             
 │       └── alerta_routes.py
-├── /tests                  # Testes unitários para as várias partes do sistema
-│   ├── /unit               # Testes unitários
+├── /tests                  
+│   ├── /unit               
 │   │   ├── test_alerta_repository.py
 │   │   ├── test_alerta_service.py
 │   │   └── test_rabbitmq_client.py
-├── .env                    # Arquivo de configuração das variáveis de ambiente (como PYTHONPATH)
-├── requirements.txt        # Lista de dependências do Python que devem ser instaladas
-└── docker-compose.yml      # Arquivo para subir os containers do MongoDB e RabbitMQ via Docker Compose
+├── .env                    
+├── requirements.txt        
+└── docker-compose.yml      
 ```
 
 ## Instalação do RabbitMQ
@@ -135,6 +136,16 @@ python src/controllers/services/notificacao_service.py
 ```
 
 Este serviço consome as mensagens de alerta da fila `alertas` e envia notificações (como emails) para os usuários.
+
+### 3. Executar o Serviço de Atualização de Preços
+
+Para rodar o serviço que simula a atualização dos preços dos itens no MongoDB de forma periódica, execute o seguinte comando:
+
+```bash
+python src/controllers/services/precos_service.py
+```
+
+Este serviço atualiza os preços dos itens e armazena o histórico de preços no MongoDB. Ele está configurado para rodar em intervalos de tempo específicos (no exemplo, a cada 10 segundos).
 
 ---
 
@@ -225,3 +236,9 @@ GET /alertas
 4. Faça push para a branch (`git push origin feature/nome-da-feature`).
 5. Abra um Pull Request.
 
+---
+
+Agora o **README.md** está atualizado com as instruções para rodar os três principais serviços:
+1. **Serviço de Alerta** para criação de alertas.
+2. **Serviço de Notificação** para envio de alertas por email.
+3. **Serviço de Atualização de Preços** para atualização periódica dos preços no MongoDB.
