@@ -52,73 +52,34 @@ A arquitetura MOM é ideal para desacoplar os componentes, garantindo escalabili
     
 ```
 
-## Instalação do RabbitMQ
+## Instalação
 
-### 1. Instalar RabbitMQ
+### Pré-requisitos
 
-Para instalar o **RabbitMQ** no seu sistema, siga os passos abaixo:
+- **Python 3.8+**
+- **Docker e Docker Compose** (para subir MongoDB e RabbitMQ em contêineres)
 
-#### **Windows**:
-1. Faça o download do **RabbitMQ Installer** no site oficial:  
-   [https://www.rabbitmq.com/install-windows.html](https://www.rabbitmq.com/install-windows.html)
-2. Siga as instruções de instalação no site, que incluem também a instalação do **Erlang** (prérequisito para o RabbitMQ).
-
-#### **Linux**:
-1. No terminal, instale o RabbitMQ com o seguinte comando:
-   
+1. Clone o repositório e navegue até o diretório do projeto:
    ```bash
-   sudo apt-get install rabbitmq-server
+   git clone <repo-url>
+   cd project-root
    ```
 
-2. Após a instalação, inicie o RabbitMQ:
-
+2. Instale as dependências Python:
    ```bash
-   sudo service rabbitmq-server start
+   pip install -r requirements.txt
    ```
 
-### 2. Habilitar o RabbitMQ Management Plugin
+3. Configure as variáveis de ambiente no arquivo `.env`.
 
-Após instalar o **RabbitMQ**, é necessário habilitar o **RabbitMQ Management Plugin** para acessar a interface de gerenciamento web.
-
-1. **Habilitar o plugin de gerenciamento**:
-
-   No terminal, execute o seguinte comando para habilitar o plugin:
-
+4. Suba os contêineres do MongoDB e RabbitMQ:
    ```bash
-   rabbitmq-plugins enable rabbitmq_management
+   docker-compose up -d
    ```
 
-2. **Reiniciar o RabbitMQ**:
-   
-   As mudanças só terão efeito após reiniciar o RabbitMQ. Execute os comandos abaixo para reiniciar o RabbitMQ:
+## Serviços Principais
 
-   ```bash
-   rabbitmqctl stop
-   rabbitmq-server
-   ```
-
-### 3. Acessar o Gerenciador Web do RabbitMQ
-
-Para verificar e gerenciar as filas e exchanges do RabbitMQ, você pode acessar o painel de gerenciamento web do RabbitMQ.
-
-1. Abra um navegador web e digite o seguinte URL:
-
-   ```
-   http://localhost:15672
-   ```
-
-2. Ao acessar o painel de gerenciamento, você precisará fornecer as credenciais padrão de acesso:
-
-   - **Usuário**: `guest`
-   - **Senha**: `guest`
-
-Agora você pode visualizar e gerenciar as filas, exchanges e verificar o status do RabbitMQ diretamente através da interface web.
-
----
-
-## Rodar os Serviços
-
-### 1. Executar o Serviço de Alerta
+### 1. Serviço de Alerta
 
 Para iniciar o serviço que cria alertas e envia mensagens para o **RabbitMQ**, execute o seguinte comando:
 
@@ -128,7 +89,7 @@ python src/controllers/services/alerta_service.py
 
 Este serviço recebe solicitações de criação de alertas e publica mensagens na fila `alertas` do **RabbitMQ**.
 
-### 2. Executar o Serviço de Notificações
+### 2. Serviço de Notificações
 
 Para iniciar o serviço que consome as mensagens da fila **RabbitMQ** e envia notificações por email, execute:
 
@@ -138,7 +99,7 @@ python src/controllers/services/notificacao_service.py
 
 Este serviço consome as mensagens de alerta da fila `alertas` e envia notificações (como emails) para os usuários.
 
-### 3. Executar o Serviço de Atualização de Preços
+### 3. Serviço de Atualização de Preços
 
 Para rodar o serviço que simula a atualização dos preços dos itens no MongoDB de forma periódica, execute o seguinte comando:
 
@@ -150,16 +111,31 @@ Este serviço atualiza os preços dos itens e armazena o histórico de preços n
 
 ---
 
+## Extensão MongoDB for VS Code
+
+Para facilitar o acesso e gerenciamento do banco de dados MongoDB diretamente do VS Code, você pode instalar a extensão **MongoDB for VS Code**.
+
+### Instalação da Extensão
+
+1. Abra o **VS Code**.
+2. Navegue até o painel de **Extensões** (ícone de quadrado à esquerda ou `Ctrl+Shift+X`).
+3. Na barra de pesquisa, digite **MongoDB for VS Code** e clique na extensão correspondente (desenvolvida pela MongoDB Inc.).
+4. Clique em **Instalar**.
+
+### Configurando a Conexão com MongoDB
+
+Após a instalação:
+
+1. Clique no ícone da extensão **MongoDB** na barra lateral esquerda do VS Code.
+2. Clique em **Connect** (ou "Add Connection").
+3. Na caixa de diálogo de conexão, insira o endereço do MongoDB, que normalmente é `mongodb://localhost:27017` se você estiver executando o MongoDB localmente via Docker.
+4. Clique em **Connect**.
+
+Agora você deve conseguir visualizar e gerenciar as coleções e documentos MongoDB diretamente no VS Code.
+
+---
+
 ## Executando os Testes
-
-### 1. Rodar os Testes no VS Code
-
-Se estiver utilizando o **VS Code**, você pode rodar os testes diretamente no painel de testes:
-
-1. Vá até o ícone de "Testes" na barra lateral.
-2. Clique em **Run All Tests** para executar todos os testes.
-
-### 2. Rodar os Testes no Terminal
 
 Para rodar os testes manualmente pelo terminal, use o seguinte comando:
 
@@ -239,7 +215,6 @@ GET /alertas
 
 ---
 
-Agora o **README.md** está atualizado com as instruções para rodar os três principais serviços:
-1. **Serviço de Alerta** para criação de alertas.
-2. **Serviço de Notificação** para envio de alertas por email.
-3. **Serviço de Atualização de Preços** para atualização periódica dos preços no MongoDB.
+Esse `README.md` agora contém todas as instruções para instalar e rodar os serviços principais do sistema, bem como instruções para acessar e gerenciar o MongoDB com a extensão MongoDB for VS Code.
+```
+
