@@ -7,9 +7,9 @@ def enviar_email(alerta):
     # Configuração do servidor SMTP (Gmail como exemplo)
     smtp_server = 'smtp.gmail.com'
     smtp_port = 587
-    sender_email = 'seuemail@gmail.com'
-    sender_password = 'suasenha'  # Lembre-se de usar a senha de app se usar Gmail
-    recipient_email = 'destinatario@example.com'  # Email para o qual será enviado o alerta
+    sender_email = 'testes203.l2@gmail.com'
+    sender_password = '#Game123'  # Lembre-se de usar a senha de app se usar Gmail
+    recipient_email = 'gr8147972@gmail.com'  # Email para o qual será enviado o alerta
 
     # Criar mensagem de email
     mensagem = MIMEMultipart()
