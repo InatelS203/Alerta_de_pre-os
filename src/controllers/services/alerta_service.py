@@ -12,10 +12,11 @@ channel.queue_declare(queue='alertas')
 # Exemplo de alerta de preço
 alerta = {
     "usuario_id": "123",
-    "produto": "Smartphone XYZ",
-    "preco_limite": 1000.0,
-    "data_criacao": "2024-09-02T12:00:00",
-    "status": "ativo"
+    "produto": "Coxinha",               # Nome do item da cantina
+    "preco_limite": 4.0,                # Limite de preço para notificação
+    "preco_atual": 4.5,                 # Preço atual do item
+    "data_criacao": "2024-09-02T12:00:00",  # Data de criação do alerta
+    "status": "ativo"                   # Status do alerta
 }
 
 # Converter o alerta para o formato JSON antes de enviar

@@ -2,7 +2,7 @@ from twilio.rest import Client
 import os
 
 # Credenciais do Twilio
-account_sid = ""
+account_sid = "AC"
 auth_token = ""
 client = Client(account_sid, auth_token)
 
@@ -16,9 +16,9 @@ def enviar_alerta_whatsapp(alerta):
     """
     try:
         message = client.messages.create(
-            from_="",  # Número do Twilio Sandbox para WhatsApp
+            from_="+",  # Número do Twilio Sandbox para WhatsApp
             body=mensagem,
-            to="",  # Substitua pelo número de destino com o código do país
+            to="+",  # Substitua pelo número de destino com o código do país
         )
         print(f"Mensagem enviada com sucesso. SID: {message.sid}")
     except Exception as e:
