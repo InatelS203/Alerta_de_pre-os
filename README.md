@@ -147,6 +147,34 @@ Agora você deve conseguir visualizar e gerenciar as coleções e documentos Mon
 
 ---
 
+## Extensão Rabbitrace para RabbitMQ
+
+Para facilitar o monitoramento das filas do RabbitMQ, você pode instalar a extensão **Rabbitrace** no VS Code.
+
+### Instalação da Extensão Rabbitrace
+
+1. Abra o **VS Code**.
+2. Acesse o painel de **Extensões** (ícone de quadrado ou `Ctrl+Shift+X`).
+3. Na barra de pesquisa, digite **Rabbitrace** e selecione a extensão correspondente.
+4. Clique em **Instalar**.
+
+### Configurando a Conexão com RabbitMQ no Rabbitrace
+
+Após a instalação:
+
+1. Abra o **Rabbitrace** na barra lateral.
+2. Clique em **New Connection** para adicionar uma nova conexão.
+3. Insira as seguintes informações:
+   - **Connection Name**: Nome da conexão (ex: `RabbitMQ Local`).
+   - **Management API URL**: `http://localhost:15672/api/`
+   - **Management API Username**: `guest`
+   - **Management API Password**: `guest`
+4. Clique em **Save**.
+
+Agora, você deve conseguir visualizar as filas e gerenciar o RabbitMQ diretamente no VS Code.
+
+---
+
 ## Executando os Testes
 
 Para rodar os testes manualmente pelo terminal, use o seguinte comando:
@@ -215,8 +243,6 @@ GET /alertas
 ]
 ```
 
-
-
 ---
 
 ## Contribuindo
@@ -227,4 +253,3 @@ GET /alertas
 4. Faça push para a branch (`git push origin feature/nome-da-feature`).
 5. Abra um Pull Request.
 
----
