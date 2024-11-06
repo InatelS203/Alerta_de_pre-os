@@ -70,12 +70,14 @@ def simular_atualizacao_precos():
     for item in items:
         atualizar_preco(item['item_id'], item['nome'])
 
-# Exemplo: Inserir alguns itens no banco de dados
-inserir_item("001", "Smartphone XYZ", 1000.0)
-inserir_item("002", "Laptop ABC", 2500.0)
-inserir_item("003", "Televisão 50'", 1800.0)
+# Exemplo: Inserir alguns itens de cantina no banco de dados
+inserir_item("001", "Coxinha", 5.0)
+inserir_item("002", "Refrigerante Lata", 3.5)
+inserir_item("003", "Sanduíche Natural", 8.0)
+inserir_item("004", "Pão de Queijo", 4.0)
+inserir_item("005", "Suco Natural", 6.5)
 
-# Agendar a atualização dos preços a cada 10 segundos (ajuste conforme necessário)
+# Agendar a atualização dos preços a cada 10 segundos 
 schedule.every(10).seconds.do(simular_atualizacao_precos)
 
 # Loop para rodar o agendamento
