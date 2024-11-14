@@ -2,8 +2,21 @@
 import pika
 import json
 
-# Conectar ao RabbitMQ
-connection = pika.BlockingConnection(pika.ConnectionParameters(host='localhost'))
+# Configuração de conexão com o RabbitMQ
+rabbitmq_host = 'localhost'
+rabbitmq_port = 5672  # Porta padrão do RabbitMQ
+rabbitmq_user = 'guest'  # Substitua pelo usuário do RabbitMQ
+rabbitmq_password = 'guest'  # Substitua pela senha do usuário
+
+# Conectar ao RabbitMQ com credenciais
+credentials = pika.PlainCredentials(rabbitmq_user, rabbitmq_password)
+connection = pika.BlockingConnection(
+    pika.ConnectionParameters(
+        host=rabbitmq_host,
+        port=rabbitmq_port,
+        credentials=credentials
+    )
+)
 channel = connection.channel()
 
 # Declarar a fila 'alertas' no RabbitMQ
