@@ -1,24 +1,3 @@
-from src.controllers.factories.notification_factory import NotificationFactory
-from src.controllers.config.database import Database
-
-def verificar_e_enviar_alertas():
-    """
-    Função principal para verificar alertas e enviar notificações por SMS.
-    """
-    alertas = buscar_alertas_ativos()
-    sms_notification = NotificationFactory.create_notification('sms')
-    
-    for alerta in alertas:
-        sms_notification.send_notification(alerta)
-
-def buscar_alertas_ativos():
-    """
-    Função para buscar alertas ativos do banco de dados.
-    """
-    db = Database().get_collection("alertas")
-    return list(db.find({"status": "ativo"}))
-
-
 # from twilio.rest import Client
 # import os
 
