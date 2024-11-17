@@ -77,8 +77,8 @@ inserir_item("003", "Sanduíche Natural", 8.0)
 inserir_item("004", "Pão de Queijo", 4.0)
 inserir_item("005", "Suco Natural", 6.5)
 
-# Agendar a atualização dos preços a cada 10 segundos 
-schedule.every(10).seconds.do(simular_atualizacao_precos)
+# Agendar a atualização dos preços a cada 60 segundos 
+schedule.every(60).seconds.do(simular_atualizacao_precos)
 
 # Loop para rodar o agendamento
 while True:

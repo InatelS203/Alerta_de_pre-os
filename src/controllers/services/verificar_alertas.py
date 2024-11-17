@@ -1,9 +1,13 @@
-import time
-from src.controllers.services.notificacao_service import verificar_e_enviar_alertas
+from src.controllers.services.notificacao_service import NotificacaoService
 
 def iniciar_servico_verificacao():
+    """
+    Inicia o serviço de verificação de alertas periodicamente.
+    """
+    notificacao_service = NotificacaoService(usar_simulacao=True)  # Alterar para False para usar dados reais
+
     while True:
-        verificar_e_enviar_alertas()
+        notificacao_service.verificar_e_enviar_alertas()
         print("Verificação de alertas concluída. Aguardando 10 segundos para nova verificação.")
         time.sleep(10)  # Intervalo de verificação em segundos
 

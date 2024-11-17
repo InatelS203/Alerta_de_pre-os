@@ -1,14 +1,17 @@
 from src.controllers.config.database import get_database
-from src.controllers.models.Alerta import Alerta
 
 class AlertaRepository:
     def __init__(self):
         self.collection = get_database()["alertas"]
 
-    def salvar_alerta(self, alerta: Alerta):
-        # Converte o objeto alerta para dicionário e insere no MongoDB
+    def salvar_alerta(self, alerta):
+        """
+        Salva um alerta no banco de dados.
+        """
         self.collection.insert_one(alerta.dict())
 
-    def buscar_todos_alertas(self):
-        # Busca todos os documentos da coleção
-        return list(self.collection.find())
+    def buscar_alertas_ativos(self):
+        """
+        Busca todos os alertas com status 'ativo' no banco de dados.
+        """
+        return list(self.collection.find({"status": "ativo"}))

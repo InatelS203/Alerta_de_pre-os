@@ -1,7 +1,8 @@
 {
-    "python.analysis.extraPaths": [
-        "./src"
-    ],
+    
+     "python.envFile": "${workspaceFolder}/.env",
+     "python.analysis.extraPaths": ["./src"],
+    
     "python.envFile": "${workspaceFolder}/.env",  // Arquivo de ambiente para variáveis
     "python.testing.unittestArgs": [
         "-v",  // Modo detalhado (verbose)
