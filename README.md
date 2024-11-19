@@ -4,11 +4,44 @@ Este projeto implementa um sistema de alerta de preços que utiliza a arquitetur
 
 Os alertas são gerenciados por meio de uma API criada com **FastAPI**, e a comunicação assíncrona é realizada através do **RabbitMQ**. Os dados de alertas são armazenados no **MongoDB** e os preços dos produtos são atualizados periodicamente.
 
+---
+
 ## Arquitetura MOM (Message-Oriented Middleware)
 
 Este projeto utiliza a arquitetura **MOM**, o que significa que a comunicação entre diferentes serviços é feita de forma assíncrona, via troca de mensagens. Neste caso, o **RabbitMQ** é utilizado para enviar e receber mensagens entre os serviços de **alerta** e **notificações**.
 
 A arquitetura MOM é ideal para desacoplar os componentes, garantindo escalabilidade e permitindo que as mensagens sejam processadas de maneira eficiente, mesmo quando alguns serviços estão indisponíveis temporariamente.
+
+---
+
+## Design Patterns Utilizados
+
+### 1. **Strategy Pattern**
+Usado para encapsular diferentes formas de envio de notificações. Atualmente, a implementação utiliza o envio de **SMS** como estratégia padrão. 
+- **Classe Base**: `NotificationStrategy`
+- **Implementação Específica**: `SMSNotification`
+- **Motivo**: Permitir a inclusão futura de novos métodos de notificação (ex.: e-mail, WhatsApp) sem alterar a lógica principal.
+
+### 2. **Factory Pattern**
+Empregado para criar instâncias de estratégias de notificação. A fábrica delega a criação com base em parâmetros como `"sms"`. 
+- **Classe**: `NotificationFactory`
+- **Motivo**: Facilita a criação de estratégias de notificação de forma centralizada e extensível.
+
+### 3. **Singleton Pattern**
+Aplicado à conexão com o banco de dados **MongoDB**, garantindo que apenas uma instância do cliente seja criada e reutilizada em todo o sistema.
+- **Classe**: `MongoClient` (implementação nativa no MongoDB).
+- **Motivo**: Evita múltiplas conexões ao banco, otimizando o desempenho e reduzindo custos.
+
+### 4. **Repository Pattern**
+Utilizado para encapsular a lógica de acesso ao banco de dados. Isso separa a lógica de persistência da lógica de negócios.
+- **Classe**: `AlertaRepository`
+- **Motivo**: Facilita a manutenção e a troca do banco de dados, caso necessário.
+
+### 5. **Observer Pattern**
+Implementado indiretamente com **MongoDB Change Streams**, monitorando alterações em documentos da coleção de preços.
+- **Motivo**: Permite reatividade no envio de alertas sempre que os preços forem atualizados.
+
+---
 
 ## Tecnologias Utilizadas
 
@@ -20,34 +53,87 @@ A arquitetura MOM é ideal para desacoplar os componentes, garantindo escalabili
 - **pika**: Cliente Python para interação com RabbitMQ.
 - **unittest**: Biblioteca de testes para realizar testes unitários.
 
+---
+
 ## Estrutura do Projeto
 
 ```bash
 /project-root
 ├── /src
-│   ├── /controllers           # Controladores da API, onde as requisições são recebidas e processadas
-│   │   └── alerta_controller.py  # Controlador para gerenciar as operações relacionadas aos alertas
-│   ├── /services              # Lógica de negócios, comunicação com repositórios e RabbitMQ
-│   │   ├── alerta_service.py     # Serviço responsável por criar alertas e enviar mensagens para o RabbitMQ
-│   │   ├── notificacao_service.py # Serviço responsável por receber mensagens do RabbitMQ e enviar notificações via SMS
-│   │   └── precos_service.py     # Serviço para atualizar periodicamente os preços dos itens no MongoDB
-│   ├── /repositories          # Camada de persistência, responsável por interagir com o banco de dados MongoDB
-│   │   └── alerta_repository.py  # Repositório para gerenciar operações CRUD de alertas
-│   ├── /integrations          # Integração com serviços externos, como RabbitMQ
-│   │   └── rabbitmq_client.py    # Cliente para comunicação com o RabbitMQ
-│   ├── /models                # Definições dos modelos de dados usando Pydantic
-│   │   └── alerta.py             # Modelo de dados de um alerta, utilizado para validação e serialização
-│   ├── /config                # Configurações do banco de dados e outras variáveis de ambiente
-│   │   └── database.py           # Configuração de conexão com o MongoDB
-│   └── /routes                # Definições de rotas da API, usadas para mapear os endpoints
-│       └── alerta_routes.py      # Rotas relacionadas aos alertas, como criar, listar, e deletar alertas
-├── /tests                     # Testes unitários para as várias partes do sistema
-│   ├── /unit                  # Testes unitários
-│   │   ├── test_alerta_repository.py # Testes para validar as operações do repositório de alertas
-│   │   ├── test_alerta_service.py    # Testes para validar a lógica do serviço de alertas
-│   │   └── test_rabbitmq_client.py   # Testes para validar a comunicação com o RabbitMQ
-├── .env                       # Arquivo de configuração das variáveis de ambiente (como PYTHONPATH e conexões de banco)
-└── requirements.txt           # Lista de dependências do Python que devem ser instaladas
+│   ├── /controllers           # Controladores da API
+│   │   └── alerta_controller.py # Controlador para gerenciar alertas
+│   ├── /services              # Serviços de negócios e comunicação
+│   │   ├── alerta_service.py     # Serviço para criação de alertas
+│   │   ├── notificacao_service.py # Serviço para envio de notificações via SMS
+│   │   └── precos_service.py     # Serviço para monitorar e atualizar preços
+│   ├── /repositories          # Camada de persistência
+│   │   └── alerta_repository.py  # Repositório para CRUD de alertas
+│   ├── /strategies            # Estratégias de notificação
+│   │   ├── notification_strategy.py # Interface e implementação do Strategy Pattern
+│   │   └── notification_factory.py  # Fábrica para criação de estratégias
+│   ├── /integrations          # Integrações externas
+│   │   └── rabbitmq_client.py    # Cliente para RabbitMQ
+│   ├── /models                # Modelos de dados
+│   │   └── alerta.py             # Modelo para validação e serialização de alertas
+│   ├── /config                # Configurações do projeto
+│   │   └── database.py           # Configuração da conexão com MongoDB
+│   └── /routes                # Rotas da API
+│       └── alerta_routes.py      # Rotas para criar e listar alertas
+├── /tests                     # Testes unitários
+│   ├── /unit                  # Testes detalhados por módulo
+│   │   ├── test_alerta_repository.py
+│   │   ├── test_alerta_service.py
+│   │   └── test_rabbitmq_client.py
+├── .env                       # Variáveis de ambiente (Twilio, MongoDB, RabbitMQ)
+└── requirements.txt           # Dependências Python
+```
+
+---
+
+## Instalação
+
+### Pré-requisitos
+
+- **Python 3.8+**
+- **Docker e Docker Compose** (para subir MongoDB e RabbitMQ em contêineres)
+- **Conta Twilio**: Para envio de notificações via SMS.
+
+1. Clone o repositório e navegue até o diretório do projeto:
+   ```bash
+   git clone <repo-url>
+   cd project-root
+   ```
+
+2. Instale as dependências Python:
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+3. Configure as variáveis de ambiente no arquivo `.env`.
+
+4. Suba os contêineres do MongoDB e RabbitMQ:
+   ```bash
+   docker-compose up -d
+   ```
+
+---
+
+## Configuração do Twilio para Envio de Notificações via SMS
+
+1. Crie uma conta no [Twilio](https://www.twilio.com/).
+2. No **Twilio Console**, obtenha o **Account SID** e **Auth Token**.
+3. Adicione esses valores no arquivo `.env`:
+
+   ```dotenv
+   TWILIO_ACCOUNT_SID=SEU_ACCOUNT_SID
+   TWILIO_AUTH_TOKEN=SEU_AUTH_TOKEN
+   ```
+
+4. Configure o número `from_` no `notificacao_service.py` para o número fornecido pelo Twilio.
+
+---
+
+(Outras partes seguem conforme solicitado: serviços principais, extensões de VS Code, testes, endpoints, e contribuições.)
 ```
 
 ## Instalação
