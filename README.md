@@ -133,7 +133,6 @@ Implementado indiretamente com **MongoDB Change Streams**, monitorando alteraç�
 
 ---
 
-(Outras partes seguem conforme solicitado: serviços principais, extensões de VS Code, testes, endpoints, e contribuições.)
 ```
 
 ## Instalação
