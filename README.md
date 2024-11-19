@@ -22,24 +22,16 @@ Usado para encapsular diferentes formas de envio de notificações. Atualmente, 
 - **Implementação Específica**: `SMSNotification`
 - **Motivo**: Permitir a inclusão futura de novos métodos de notificação (ex.: e-mail, WhatsApp) sem alterar a lógica principal.
 
-### 2. **Factory Pattern**
-Empregado para criar instâncias de estratégias de notificação. A fábrica delega a criação com base em parâmetros como `"sms"`. 
-- **Classe**: `NotificationFactory`
-- **Motivo**: Facilita a criação de estratégias de notificação de forma centralizada e extensível.
-
-### 3. **Singleton Pattern**
+### 2. **Singleton Pattern**
 Aplicado à conexão com o banco de dados **MongoDB**, garantindo que apenas uma instância do cliente seja criada e reutilizada em todo o sistema.
 - **Classe**: `MongoClient` (implementação nativa no MongoDB).
 - **Motivo**: Evita múltiplas conexões ao banco, otimizando o desempenho e reduzindo custos.
 
-### 4. **Repository Pattern**
+### 3. **Repository Pattern**
 Utilizado para encapsular a lógica de acesso ao banco de dados. Isso separa a lógica de persistência da lógica de negócios.
 - **Classe**: `AlertaRepository`
 - **Motivo**: Facilita a manutenção e a troca do banco de dados, caso necessário.
 
-### 5. **Observer Pattern**
-Implementado indiretamente com **MongoDB Change Streams**, monitorando alterações em documentos da coleção de preços.
-- **Motivo**: Permite reatividade no envio de alertas sempre que os preços forem atualizados.
 
 ---
 
@@ -54,8 +46,62 @@ Implementado indiretamente com **MongoDB Change Streams**, monitorando alteraç�
 - **unittest**: Biblioteca de testes para realizar testes unitários.
 
 ---
+# Sistema de Alerta de Preços com Design Patterns
 
-## Estrutura do Projeto
+Este projeto implementa um sistema de alerta de preços utilizando **design patterns** e uma arquitetura orientada a serviços. A aplicação permite que os usuários definam alertas de preços para produtos, com notificações enviadas via SMS quando o preço atinge ou fica abaixo do limite configurado.
+
+---
+
+## **Principais Funcionalidades**
+
+1. **Definição de Alertas**: Usuários podem criar alertas com base em produtos e limites de preços.
+2. **Monitoramento de Preços**: Um serviço monitora os preços de produtos no banco de dados e atualiza os valores periodicamente.
+3. **Notificação via SMS**: Notificações são enviadas automaticamente ao usuário quando as condições do alerta são atendidas.
+4. **Armazenamento em MongoDB**: Alertas e preços são armazenados e gerenciados em um banco de dados MongoDB.
+5. **Arquitetura Orientada a Padrões**: Utiliza **Strategy**, **Factory**, **Singleton**, **Repository**, e **Observer** para garantir modularidade e escalabilidade.
+
+---
+
+## **Design Patterns Utilizados**
+---
+
+### 1. **Strategy**
+- Permite alternar entre diferentes formas de notificação (ex.: SMS, e-mail) sem modificar o código principal.
+- **Classe Base**: `NotificationStrategy`
+  - Implementação: `SMSNotification`
+  - Localização: `src/controllers/strategies/notification_strategy.py`
+- **Uso**: 
+  - No `NotificacaoService`, a estratégia é usada para enviar notificações:
+    ```python
+    self.notification_strategy.send_notification(alerta)
+    ```
+
+---
+
+### 2. **Singleton**
+- Garante uma única instância para a conexão com o MongoDB.
+- **Localização**: `src/config/database.py`
+  - Função: `get_database()`
+  - Implementa e reutiliza a conexão:
+    ```python
+    client = MongoClient("mongodb://localhost:27017/")
+    return client["sistema_precos"]
+    ```
+
+---
+
+### 3. **Repository**
+- Encapsula a lógica de acesso ao banco de dados.
+- **Classe**: `AlertaRepository`
+  - Métodos: `buscar_alertas_ativos`, `salvar_alerta`
+  - Localização: `src/controllers/repositories/alerta_repository.py`
+- **Uso**: 
+  - No `NotificacaoService`:
+    ```python
+    alertas = self.repository.buscar_alertas_ativos()
+    ```
+
+---
 
 ```bash
 /project-root
