@@ -32,37 +32,6 @@ Utilizado para encapsular a lógica de acesso ao banco de dados. Isso separa a l
 - **Classe**: `AlertaRepository`
 - **Motivo**: Facilita a manutenção e a troca do banco de dados, caso necessário.
 
-
----
-
-## Tecnologias Utilizadas
-
-- **Python 3.x**
-- **FastAPI**: Framework para criar a API REST.
-- **MongoDB**: Banco de dados NoSQL para armazenar alertas e logs de preços.
-- **RabbitMQ**: Message broker para comunicação assíncrona entre os serviços.
-- **Twilio API**: Serviço para envio de notificações via SMS.
-- **pika**: Cliente Python para interação com RabbitMQ.
-- **unittest**: Biblioteca de testes para realizar testes unitários.
-
----
-# Sistema de Alerta de Preços com Design Patterns
-
-Este projeto implementa um sistema de alerta de preços utilizando **design patterns** e uma arquitetura orientada a serviços. A aplicação permite que os usuários definam alertas de preços para produtos, com notificações enviadas via SMS quando o preço atinge ou fica abaixo do limite configurado.
-
----
-
-## **Principais Funcionalidades**
-
-1. **Definição de Alertas**: Usuários podem criar alertas com base em produtos e limites de preços.
-2. **Monitoramento de Preços**: Um serviço monitora os preços de produtos no banco de dados e atualiza os valores periodicamente.
-3. **Notificação via SMS**: Notificações são enviadas automaticamente ao usuário quando as condições do alerta são atendidas.
-4. **Armazenamento em MongoDB**: Alertas e preços são armazenados e gerenciados em um banco de dados MongoDB.
-5. **Arquitetura Orientada a Padrões**: Utiliza **Strategy**, **Factory**, **Singleton**, **Repository**, e **Observer** para garantir modularidade e escalabilidade.
-
----
-
-## **Design Patterns Utilizados**
 ---
 
 ### 1. **Strategy**
@@ -76,8 +45,6 @@ Este projeto implementa um sistema de alerta de preços utilizando **design patt
     self.notification_strategy.send_notification(alerta)
     ```
 
----
-
 ### 2. **Singleton**
 - Garante uma única instância para a conexão com o MongoDB.
 - **Localização**: `src/config/database.py`
@@ -87,8 +54,6 @@ Este projeto implementa um sistema de alerta de preços utilizando **design patt
     client = MongoClient("mongodb://localhost:27017/")
     return client["sistema_precos"]
     ```
-
----
 
 ### 3. **Repository**
 - Encapsula a lógica de acesso ao banco de dados.
@@ -100,6 +65,20 @@ Este projeto implementa um sistema de alerta de preços utilizando **design patt
     ```python
     alertas = self.repository.buscar_alertas_ativos()
     ```
+
+---
+
+---
+
+## Tecnologias Utilizadas
+
+- **Python 3.x**
+- **FastAPI**: Framework para criar a API REST.
+- **MongoDB**: Banco de dados NoSQL para armazenar alertas e logs de preços.
+- **RabbitMQ**: Message broker para comunicação assíncrona entre os serviços.
+- **Twilio API**: Serviço para envio de notificações via SMS.
+- **pika**: Cliente Python para interação com RabbitMQ.
+- **unittest**: Biblioteca de testes para realizar testes unitários.
 
 ---
 
