@@ -1,235 +1,149 @@
-from pymongo import MongoClient
 from src.controllers.strategies.notification_factory import NotificationFactory
-
+from src.controllers.repositories.alerta_repository import AlertaRepository
 
 class NotificacaoService:
-    def __init__(self):
+    def __init__(self, usar_simulacao=False):
         """
-        Inicializa o serviço de notificações, conectando ao MongoDB.
+        Inicializa o serviço de notificações.
+        :param usar_simulacao: Indica se a busca de alertas será simulada ou feita no banco de dados.
         """
-        self.client = MongoClient("mongodb://localhost:27017/")
-        self.db = self.client["sistema_precos"]
-        self.collection = self.db["precos"]
+        self.usar_simulacao = usar_simulacao
+        self.repository = AlertaRepository()
         self.notification_strategy = NotificationFactory.create_strategy("sms")
+        self.ultimo_preco = {}  # Dicionário para rastrear o último preço notificado por produto
 
     def verificar_e_enviar_alertas(self):
         """
-        Verifica os alertas com base nos dados do banco de dados e envia notificações quando necessário.
+        Verifica alertas ativos e envia notificações apenas se o preço mudar.
         """
-        produtos = self.collection.find()
+        print("Iniciando verificação de alertas...")
+        if self.usar_simulacao:
+            alertas = self.buscar_alertas_ativos_simulados()
+        else:
+            alertas = self.repository.buscar_alertas_ativos()
 
-        for produto in produtos:
-            preco_atual = produto.get("preco_atual", 0)
-            preco_limite = produto.get("preco_limite", None)
+        for alerta in alertas:
+            produto = alerta["produto"]
+            preco_atual = alerta.get("preco_atual")
+            preco_limite = alerta.get("preco_limite")
 
-            if preco_limite and preco_atual <= preco_limite:
-                alerta = {
-                    "produto": produto["nome"],
-                    "preco_limite": preco_limite,
-                    "preco_atual": preco_atual,
-                    "telefone": produto.get("telefone", "+")
-                }
-                self.notification_strategy.send_notification(alerta)
+            # Validar campos obrigatórios
+            if preco_atual is None or preco_limite is None:
+                print(f"Alerta inválido: {alerta}")
+                continue
 
-    def monitorar_alteracoes(self):
+            # Verificar se o preço mudou
+            preco_anterior = self.ultimo_preco.get(produto)
+            if preco_atual != preco_anterior:
+                self.ultimo_preco[produto] = preco_atual
+                # Enviar notificação somente se o preço atual for menor ou igual ao limite
+                if preco_atual <= preco_limite:
+                    self.notification_strategy.send_notification(alerta)
+                    print(f"Mensagem enviada para {produto} com novo preço: {preco_atual}")
+                else:
+                    print(f"Preço de {produto} mudou para {preco_atual}, mas está acima do limite ({preco_limite}).")
+            else:
+                print(f"Preço de {produto} não mudou: {preco_atual}")
+
+    @staticmethod
+    def buscar_alertas_ativos_simulados():
         """
-        Monitora alterações no banco de dados usando Change Streams do MongoDB.
+        Retorna alertas simulados para fins de teste.
         """
-        try:
-            with self.collection.watch() as stream:
-                print("Monitorando alterações na coleção 'precos'...")
-                for change in stream:
-                    if change["operationType"] in ["update", "replace"]:
-                        documento_id = change["documentKey"]["_id"]
-                        produto = self.collection.find_one({"_id": documento_id})
-
-                        if produto and produto["preco_atual"] <= produto["preco_limite"]:
-                            alerta = {
-                                "produto": produto["nome"],
-                                "preco_limite": produto["preco_limite"],
-                                "preco_atual": produto["preco_atual"],
-                                "telefone": produto.get("telefone", "+")
-                            }
-                            self.notification_strategy.send_notification(alerta)
-        except Exception as e:
-            print(f"Erro ao monitorar alterações: {e}")
-
+        return [
+            {
+                "produto": "Coxinha",
+                "preco_limite": 4.0,
+                "preco_atual": 3.5,
+                "status": "ativo",
+                "telefone": "+5533999678554"
+            },
+            {
+                "produto": "Refrigerante",
+                "preco_limite": 5.0,
+                "preco_atual": 5.2,
+                "status": "ativo",
+                "telefone": "+5533999678554"
+            }
+        ]
 
 # Exemplo de execução direta
 if __name__ == "__main__":
-    notificacao_service = NotificacaoService()
-    
-    # Escolha uma das opções abaixo:
-    
-    # Executar monitoramento contínuo (requer suporte a Change Streams no MongoDB)
-    notificacao_service.monitorar_alteracoes()
-    
-    # Executar verificação periódica (caso o Change Streams não esteja disponível)
-    # notificacao_service.verificar_e_enviar_alertas()
+    notificacao_service = NotificacaoService(usar_simulacao=False)  # Troque para True para usar dados simulados
+    notificacao_service.verificar_e_enviar_alertas()
 
 
-
+# from pymongo import MongoClient
 # from src.controllers.strategies.notification_factory import NotificationFactory
-# from src.controllers.repositories.alerta_repository import AlertaRepository
+# import time
+
 
 # class NotificacaoService:
-#     def __init__(self, usar_simulacao=False):
+#     def __init__(self):
 #         """
 #         Inicializa o serviço de notificações.
-#         :param usar_simulacao: Indica se a busca de alertas será simulada ou feita no banco de dados.
 #         """
-#         self.usar_simulacao = usar_simulacao
-#         self.repository = AlertaRepository()
+#         self.client = MongoClient("mongodb://localhost:27017/")
+#         self.db = self.client["sistema_precos"]
+#         self.collection = self.db["alertas"]
+#         self.collection_preco = self.db["precos"]
 #         self.notification_strategy = NotificationFactory.create_strategy("sms")
 
 #     def verificar_e_enviar_alertas(self):
 #         """
-#         Verifica alertas ativos e envia notificações.
+#         Verifica os alertas ativos no banco de dados e envia notificações quando necessário.
 #         """
-#         if self.usar_simulacao:
-#             alertas = self.buscar_alertas_ativos_simulados()
-#         else:
-#             alertas = self.repository.buscar_alertas_ativos()
+#         print("Iniciando verificação de alertas...")
 
-#         for alerta in alertas:
-#             # Adiciona uma validação para garantir que todos os campos necessários estão presentes
-#             if "preco_atual" not in alerta:
-#                 alerta["preco_atual"] = "N/A"  # Valor padrão se preço atual não estiver presente
+#         try:
+#             # Buscar alertas ativos no banco de dados
+#             alertas = self.buscar_alertas_ativos()
 
-#             self.notification_strategy.send_notification(alerta)
+#             if not alertas:
+#                 print("Nenhum alerta ativo encontrado no banco de dados.")
+#                 return
 
-#     @staticmethod
-#     def buscar_alertas_ativos_simulados():
+#             for alerta in alertas:
+#                 # Verificar se o preço atual está abaixo ou igual ao limite
+#                 produto = list(self.collection_preco.find({"nome": alerta["nome"]}))
+#                 print(produto[0]["preco_atual"])
+#                 if (produto["preco_atual"] <= alerta.get("preco_limite", 0)) and alerta["flag"] == 0:
+#                     self.notification_strategy.send_notification(alerta)
+#                     print(f"Alerta enviado para o produto {alerta['nome']}!")
+#                 elif alerta["flag"] == 1:
+#                     print(f"Preço do produto '{alerta['nome']}' ainda acima do limite definido.")
+#                 else:
+#                     print(f"Preço do produto '{alerta['nome']}' ainda abaixo do limite definido.")
+
+#         except Exception as e:
+#             print(f"Erro ao verificar e enviar alertas: {e}")
+
+#     def buscar_alertas_ativos(self):
 #         """
-#         Retorna alertas simulados para fins de teste.
+#         Busca itens ativos no banco de dados que atendem às condições de notificação.
 #         """
-#         return [
-#             {
-#                 "produto": "Coxinha",
-#                 "preco_limite": 4.0,
-#                 "preco_atual": 3.5,  # Campo preco_atual adicionado
-#                 "status": "ativo",
-#                 "telefone": "+"
-#             },
-#             {
-#                 "produto": "Refrigerante",
-#                 "preco_limite": 5.0,
-#                 "preco_atual": 5.2,  # Campo preco_atual adicionado
-#                 "status": "ativo",
-#                 "telefone": "+"
-#             }
-#         ]
-# # Exemplo de execução direta
+#         try:
+#             # Busca por itens com status "ativo"
+#             alertas = list(self.collection.find({"status": "ativo"}))
+#             if not alertas:
+#                 print("Nenhum alerta ativo foi encontrado no banco de dados.")
+#             return alertas
+#         except Exception as e:
+#             print(f"Erro ao buscar alertas ativos: {e}")
+#             return []
+
+#     def iniciar_monitoramento(self):
+#         """
+#         Inicia o monitoramento contínuo dos alertas.
+#         """
+#         print("Monitoramento de alertas iniciado.")
+#         while True:
+#             self.verificar_e_enviar_alertas()
+#             time.sleep(10)  # Intervalo de 60 segundos entre as verificações
+
+
 # if __name__ == "__main__":
-#     notificacao_service = NotificacaoService(usar_simulacao=False)  # Troque para False para usar dados reais
-#     notificacao_service.verificar_e_enviar_alertas()
+#     notificacao_service = NotificacaoService()
+#     notificacao_service.iniciar_monitoramento()
 
 
-# from src.controllers.repositories.alerta_repository import AlertaRepository
-# from src.controllers.strategies.notification_factory import NotificationFactory
-
-# class NotificacaoService:
-#     def __init__(self, usar_simulacao=False):
-#         """
-#         Inicializa o serviço de notificações.
-#         :param usar_simulacao: Indica se a busca de alertas será simulada ou real.
-#         """
-#         self.usar_simulacao = usar_simulacao
-#         self.repository = AlertaRepository()
-#         self.notification_strategy = NotificationFactory.create_strategy("sms")
-
-#     def verificar_e_enviar_alertas(self):
-#         """
-#         Verifica os alertas ativos e envia notificações.
-#         """
-#         if self.usar_simulacao:
-#             alertas = self.buscar_alertas_ativos_simulados()
-#         else:
-#             alertas = self.repository.buscar_alertas_ativos()
-
-#         for alerta in alertas:
-#             self.notification_strategy.send_notification(alerta)
-
-#     @staticmethod
-#     def buscar_alertas_ativos_simulados():
-#         """
-#         Função de exemplo para simular a busca de alertas ativos.
-#         """
-#         return [
-#             {
-#                 "produto": "Coxinha",
-#                 "preco_limite": 4.0,
-#                 "status": "ativo",
-#                 "telefone": "+"  # Número de destino para SMS
-#             },
-#             {
-#                 "produto": "Refrigerante",
-#                 "preco_limite": 5.0,
-#                 "status": "ativo",
-#                 "telefone": "+"  # Número de destino para SMS
-#             }
-#         ]
-
-# # Exemplo de execução direta
-# if __name__ == "__main__":
-#     notificacao_service = NotificacaoService(usar_simulacao=True)  # Troque para False para usar dados reais
-#     notificacao_service.verificar_e_enviar_alertas()
-
-
-# from twilio.rest import Client
-# import os
-
-# # Credenciais do Twilio
-# account_sid = ""  # Substitua por variáveis de ambiente em produção
-# auth_token = ""
-# client = Client(account_sid, auth_token)
-
-# def enviar_alerta_whatsapp(alerta):
-#     mensagem = f"""
-#     Alerta de Preço:
-#     Produto: {alerta['produto']}
-#     Preço Limite: {alerta['preco_limite']}
-#     Status: {alerta['status']}
-#     """
-#     try:
-#         message = client.messages.create(
-#             from_="+",  # Número do Twilio Sandbox para WhatsApp
-#             body=mensagem,
-#             to="+",  # Substitua pelo número de destino com o código do país
-#         )
-#         print(f"Mensagem enviada com sucesso. SID: {message.sid}")
-#     except Exception as e:
-#         print(f"Erro ao enviar mensagem: {e}")
-
-
-# def verificar_e_enviar_alertas():
-#     """
-#     Função principal para verificar alertas e enviar notificações por SMS.
-#     """
-#     alertas = buscar_alertas_ativos()  # Função que busca alertas ativos no banco de dados
-#     for alerta in alertas:
-#         enviar_alerta_whatsapp(alerta)
-
-# # Função para buscar alertas ativos
-# def buscar_alertas_ativos():
-#     """
-#     Função de exemplo para simular a busca de alertas ativos.
-#     Em uma implementação real, esta função deve buscar alertas ativos no banco de dados.
-#     """
-#     return [
-#         {
-#             "produto": "Coxinha",
-#             "preco_limite": 4.0,
-#             "status": "ativo",
-#             "telefone": "+"  # Número de destino para SMS
-#         },
-#         {
-#             "produto": "Refrigerante",
-#             "preco_limite": 5.0,
-#             "status": "ativo",
-#             "telefone": "+"  # Número de destino para SMS
-#         }
-#     ]
-
-# # Executar a verificação e envio de alertas
-# verificar_e_enviar_alertas()
