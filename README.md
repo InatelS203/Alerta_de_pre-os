@@ -206,7 +206,7 @@ Utilizado para encapsular a lógica de acesso ao banco de dados. Isso separa a l
 Para iniciar o serviço que cria alertas e envia mensagens para o **RabbitMQ**, execute o seguinte comando:
 
 ```bash
-python src/controllers/services/alerta_service.py
+python src.controllers.services.alerta_service.py
 ```
 
 Este serviço recebe solicitações de criação de alertas e publica mensagens na fila `alertas` do **RabbitMQ**.
@@ -216,7 +216,7 @@ Este serviço recebe solicitações de criação de alertas e publica mensagens 
 Para iniciar o serviço que consome as mensagens da fila **RabbitMQ** e envia notificações via SMS usando o Twilio, execute:
 
 ```bash
-python src/controllers/services/notificacao_service.py
+python src.controllers.services.notificacao_service.py
 ```
 
 Este serviço consome as mensagens de alerta da fila `alertas` e envia notificações para os usuários.
@@ -226,7 +226,7 @@ Este serviço consome as mensagens de alerta da fila `alertas` e envia notifica�
 Para rodar o serviço que simula a atualização dos preços dos itens no MongoDB periodicamente, execute o seguinte comando:
 
 ```bash
-python src/controllers/services/precos_service.py
+python src.controllers.services.precos_service.py
 ```
 
 Este serviço atualiza os preços dos itens e armazena o histórico de preços no MongoDB em intervalos de tempo definidos (no exemplo, a cada 10 segundos).
@@ -362,4 +362,208 @@ GET /alertas
 3. Commit suas mudanças (`git commit -m 'Adiciona nova feature'`).
 4. Faça push para a branch (`git push origin feature/nome-da-feature`).
 5. Abra um Pull Request.
+
+
+---
+# Explicação sobre as UMLs com Design Patterns
+
+### **Descrição Geral do Fluxo diagrama de Sequência com Design Patterns**
+
+1. O serviço de notificação (`NotificacaoService`) executa o processo de **monitoramento de preços** utilizando um loop de *polling*.
+2. Para cada **alerta ativo** encontrado no banco de dados (`MongoDB`), o sistema verifica se o preço atual do produto é menor ou igual ao limite definido.
+3. Se o preço atingiu a condição de notificação, o sistema utiliza o **Factory Pattern** para instanciar a estratégia de notificação (`SMSNotification`).
+4. A estratégia **SMSNotification** envia a mensagem de alerta via **Twilio API**.
+5. A interação finaliza com a confirmação de que a notificação foi enviada com sucesso.
+
+---
+
+### **Explicação do diagrama de Sequência com Design Patterns **
+
+1. **Usuário Inicializa o Monitoramento**:
+   - O **usuário** ou o sistema inicia o monitoramento contínuo dos alertas executando o `NotificacaoService`.
+
+2. **Consulta de Alertas Ativos**:
+   - O **`NotificacaoService`** consulta o **MongoDB** para obter todos os alertas com status ativo.
+
+3. **Consulta do Preço Atual**:
+   - Para cada alerta ativo, o sistema consulta o preço atual do produto na coleção de preços do **MongoDB**.
+
+4. **Verificação da Condição de Notificação**:
+   - O serviço verifica se o preço atual do produto é menor ou igual ao preço limite definido no alerta.
+
+5. **Fábrica de Notificações**:
+   - Se a condição for atendida, o serviço usa o **Factory Pattern** (`NotificationFactory`) para instanciar a estratégia de notificação (`SMSNotification`).
+
+6. **Envio da Notificação**:
+   - A estratégia `SMSNotification` é responsável por enviar a notificação via **Twilio API**.
+
+7. **Confirmação de Envio**:
+   - O Twilio retorna a confirmação de que o SMS foi enviado com sucesso.
+
+8. **Não Envia Notificação**:
+   - Caso o preço ainda esteja acima do limite, o sistema não envia a notificação.
+
+---
+
+### **Design Patterns no Fluxo**
+
+1. **Singleton Pattern**:
+   - Implementação utiliza o envio de SMS como estratégia padrão.
+   - Permitir a inclusão futura de novos métodos de notificação (ex.: e-mail, WhatsApp) sem alterar a lógica principal.
+
+2. **Strategy Pattern**:
+   - Abstrai o envio da notificação, permitindo diferentes estratégias para envio.
+   - A estratégia **`SMSNotification`** implementa o envio de notificações via SMS.
+
+3. **Repository Pattern**:
+   - O `NotificacaoService` interage com o **MongoDB** por meio do **`AlertaRepository`**, encapsulando as operações de banco de dados.
+
+4. **Observer Pattern**:
+   - Embora neste sistema o monitoramento seja feito por *polling*, ele atua como uma implementação indireta do padrão **Observer**: o serviço observa mudanças no estado dos alertas e toma ações específicas.
+
+---
+
+### **Resumo**
+Este diagrama de sequência e a explicação detalham como o sistema implementa **design patterns** para alcançar modularidade, facilidade de manutenção e extensibilidade.
+
+---
+### **UML comportamental com design patterns**
+---
+
+### **Visão Geral do Fluxo**
+O diagrama ilustra como o sistema gerencia notificações de alertas, interagindo com serviços externos, bancos de dados e sistemas de mensagens. Ele é organizado em **três fluxos principais** que se integram:
+
+1. **Recepção e Processamento de Notificações.**
+2. **Atualização de Preços.**
+3. **Criação e Persistência de Alertas.**
+
+A seguir, explico o fluxo, com destaque aos padrões de design.
+
+---
+
+### **1. Recepção e Processamento de Notificações**
+#### **Descrição do Fluxo:**
+- O processo começa com o **Usuário** acionando o sistema.
+- A etapa inicial é "Receber Notificação", onde as notificações de alterações ou eventos são captadas.
+- Em seguida, a notificação é processada:
+  - Aqui, entra o **Strategy Pattern**, encapsulando a lógica de envio de notificações.
+  - A classe base `NotificationStrategy` define um contrato, enquanto a implementação concreta `SMSNotification` cuida do envio de notificações via SMS. Isso permite que no futuro seja fácil adicionar novas formas de notificação (e.g., e-mail, WhatsApp).
+- O envio final da notificação é realizado pela classe `NotificacaoService`.
+
+---
+
+### **2. Atualização de Preços**
+#### **Descrição do Fluxo:**
+- A partir de uma interação com um **Sistema Externo**, o sistema busca dados de preços.
+- O sistema atualiza os preços:
+  - Ele consulta uma API de preços e atualiza o banco de dados.
+- Esse fluxo ilustra a conexão entre o sistema de monitoramento e os dados armazenados.
+
+---
+
+### **3. Criação e Persistência de Alertas**
+#### **Descrição do Fluxo:**
+- O **Usuário** solicita a criação de um alerta no sistema.
+- O sistema segue os passos abaixo:
+  1. **Criação do Alerta:** Um alerta é criado no serviço principal.
+  2. **Persistência no Banco de Dados:** O alerta é salvo no MongoDB.
+     - Aqui, entra o **Repository Pattern**, com a classe `AlertaRepository` intermediando o acesso ao banco.
+     - Essa separação permite que a lógica de acesso ao banco de dados seja isolada, facilitando a troca do banco no futuro (e.g., de MongoDB para MySQL).
+  3. **Envio para RabbitMQ:** O alerta também é publicado em uma fila no RabbitMQ, garantindo comunicação assíncrona com outros serviços.
+
+---
+
+### **Padrões de Design Detalhados**
+
+#### **1. Strategy Pattern**
+- Local: Encapsulado na lógica de envio de notificações.
+- Classes Relacionadas:
+  - `NotificationStrategy`: Interface para diferentes estratégias.
+  - `SMSNotification`: Implementação concreta que envia notificações via SMS.
+- Benefício: Permite adicionar novas formas de envio sem alterar o código existente.
+
+#### **2. Singleton Pattern**
+- Local: Implementado na conexão com o MongoDB.
+- Classe Relacionada: `MongoClient`.
+- Lógica:
+  - Apenas uma instância de `MongoClient` é criada e compartilhada.
+- Benefício: Garante uma única conexão ao banco, otimizando recursos.
+
+#### **3. Repository Pattern**
+- Local: Intermediando o acesso ao MongoDB.
+- Classe Relacionada: `AlertaRepository`.
+- Lógica:
+  - A lógica de acesso ao banco é separada da lógica de negócio.
+- Benefício: Facilita manutenção e trocas de tecnologia no futuro.
+
+---
+
+### **Resumo do Fluxo**
+- O sistema começa com notificações ou solicitações de criação de alertas.
+- Envia notificações utilizando estratégias flexíveis (Strategy).
+- Atualiza os preços ao consultar serviços externos.
+- Persiste dados no banco através de repositórios (Repository) e garante conexões otimizadas (Singleton).
+
+O diagrama atualizado mencionado é um **Diagrama Estrutural** que reflete as classes, seus relacionamentos, e a implementação dos padrões de design **Strategy**, **Singleton** e **Repository** no contexto do sistema de monitoramento e notificações. Vou detalhar como cada padrão foi integrado e como os componentes interagem.
+
+---
+### ** UML estrutural com design patternsUML estrutural com design patterns**
+
+### **1. Strategy Pattern**
+#### **Descrição:**
+O **Strategy Pattern** é implementado para permitir diferentes formas de envio de notificações, como SMS, e-mail, ou WhatsApp. A ideia é encapsular a lógica de envio em classes específicas, mantendo a flexibilidade de trocar ou adicionar novas estratégias sem alterar o código principal.
+
+#### **Componentes no Diagrama:**
+- **Classe Base:** `NotificationStrategy` define a interface padrão para envio de notificações.
+- **Implementação Concreta:** 
+  - `SMSNotification` implementa o envio via SMS como a estratégia atual.
+- **Serviço:** A classe `AlertaService` utiliza o `NotificationStrategy` para enviar notificações. A dependência da estratégia é injetada, garantindo flexibilidade.
+
+#### **Vantagens:**
+- Adicionar novos métodos de envio (e.g., e-mail) se torna simples.
+- Evita modificações em serviços centrais como o `AlertaService`.
+
+#### **Exemplo no Fluxo:**
+- Quando um alerta é criado e precisa ser notificado ao usuário, o serviço utiliza a estratégia `SMSNotification` para envio via SMS.
+
+---
+
+### **2. Singleton Pattern**
+#### **Descrição:**
+O **Singleton Pattern** é usado para gerenciar a conexão com o banco de dados MongoDB. Ele garante que apenas uma instância de conexão seja criada e reutilizada em todo o sistema.
+
+#### **Componentes no Diagrama:**
+- **Classe:** `MongoClient` representa a conexão única ao banco de dados.
+- **Método de Acesso:** Um método (como `get_instance()` ou `get_database()`) assegura que a instância única do cliente MongoDB seja compartilhada.
+
+#### **Vantagens:**
+- Reduz custos computacionais ao evitar múltiplas conexões ao banco.
+- Simplifica a reutilização da conexão em diferentes partes do sistema.
+
+#### **Exemplo no Fluxo:**
+- Sempre que um alerta precisa ser salvo ou lido do MongoDB, o serviço `AlertaRepository` utiliza a mesma instância de `MongoClient`.
+
+---
+
+### **3. Repository Pattern**
+#### **Descrição:**
+O **Repository Pattern** é usado para encapsular o acesso ao banco de dados, separando a lógica de persistência da lógica de negócios. Isso torna o sistema mais modular e facilita a troca do banco de dados, se necessário.
+
+#### **Componentes no Diagrama:**
+- **Classe:** `AlertaRepository` encapsula as operações com o banco de dados.
+- **Métodos:**
+  - `salvar_alerta()`: Para salvar alertas no MongoDB.
+  - `buscar_alertas_ativos()`: Para recuperar alertas ativos.
+- **Serviço Relacionado:** `AlertaService` utiliza o `AlertaRepository` para acessar os dados.
+
+#### **Vantagens:**
+- A lógica de persistência está centralizada e desacoplada de outros serviços.
+- Alterar o banco de dados (e.g., migrar de MongoDB para MySQL) requer apenas mudanças no repositório.
+
+#### **Exemplo no Fluxo:**
+- Quando um novo alerta é criado, o `AlertaService` chama o método `salvar_alerta()` do `AlertaRepository` para persistir os dados.
+
+---
+
+
 

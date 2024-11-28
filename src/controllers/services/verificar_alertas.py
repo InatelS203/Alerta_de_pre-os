@@ -13,11 +13,10 @@ def iniciar_servico_verificacao():
     while True:
         notificacao_service.verificar_e_enviar_alertas()
         print(
-            "Verificação de alertas concluída. Aguardando 10 segundos para nova verificação."
+            "Verificação de alertas concluída. Aguardando 30 segundos para nova verificação."
         )
-        time.sleep(10)  # Intervalo de verificação em segundos
+        time.sleep(30)  # Intervalo de verificação em segundos
 
 
 if __name__ == "__main__":
     iniciar_servico_verificacao()
-
