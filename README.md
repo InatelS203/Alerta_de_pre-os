@@ -67,6 +67,21 @@ Utilizado para encapsular a lógica de acesso ao banco de dados. Isso separa a l
     ```
 
 ---
+### ***Escolha dos padrões de design:***
+
+1. **Strategy Pattern**  
+   - **Motivo:** Necessidade de flexibilidade no envio de notificações por diferentes canais (SMS, e-mail, WhatsApp). O Strategy permite encapsular essas variações em classes separadas, facilitando a adição de novos métodos de envio sem alterar a lógica principal.  
+   - **Benefício:** Extensibilidade e redução de dependências entre serviços.
+
+2. **Singleton Pattern**  
+   - **Motivo:** Gerenciar uma única conexão com o banco de dados MongoDB para evitar múltiplas conexões, que podem ser custosas em termos de recursos e desempenho.  
+   - **Benefício:** Eficiência no uso de recursos e garantia de consistência na comunicação com o banco de dados.
+
+3. **Repository Pattern**  
+   - **Motivo:** Separar a lógica de acesso ao banco de dados da lógica de negócios, facilitando manutenção e permitindo alterações no banco (e.g., troca de MongoDB para outro banco) sem impacto na lógica principal.  
+   - **Benefício:** Modulação, facilidade de testes e manutenção simplificada.
+
+Esses padrões foram escolhidos porque endereçam necessidades específicas de extensibilidade, eficiência e organização do código, garantindo um sistema robusto e escalável.
 
 ---
 
